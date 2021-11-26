@@ -25,8 +25,46 @@ impl fmt::Display for C64 {
     }
 }
 
+impl ops::Add for C64 {
+    type Output = Self;
+    
+    fn add(self, other: Self) -> Self::Output {
+        Self {
+            re: self.re + other.re,
+            im: self.im + other.im
+        }
+    }
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
     
+    #[test]
+    /// Tests proper implementation of Add for C64
+    fn adds() {        
+        assert_eq!(
+            C64::new(1, 2) + C64::new(5, 8), 
+            C64::new(6, 10)
+        );
+
+        assert_eq!(
+            C64::new(5, -22) + C64::new(5, 8), 
+            C64::new(10, -14)
+        );
+        assert_eq!(
+            C64::new(-180, -42) + C64::new(-51, -82), 
+            C64::new(-231, -124)
+        );
+
+        assert_eq!(
+            C64::new(1.86, 2) + C64::new(5, 8.789), 
+            C64::new(6.86, 10.789)
+        );
+
+        assert_eq!(
+            C64::new(-546.3, -4002.57) + C64::new(5.5464, 8.21), 
+            C64::new(-540.7536, -3994.36)
+        );
+    }
 }

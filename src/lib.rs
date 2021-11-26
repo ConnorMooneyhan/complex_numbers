@@ -19,12 +19,14 @@ impl C64 {
     }
 }
 
+impl fmt::Display for C64 {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        write!(f, "{} + {}i", self.re, self.im)
+    }
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
     
-    #[test]
-    fn it_works() {
-        assert_eq!(2 + 2, 4);
-    }
 }

@@ -36,6 +36,17 @@ impl ops::Add for C64 {
     }
 }
 
+impl ops::Sub for C64 {
+    type Output = C64;
+
+    fn sub(self, other: Self) -> Self::Output {
+        Self {
+            re: self.re - other.re,
+            im: self.im - other.im
+        }
+    }
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -65,6 +76,34 @@ mod tests {
         assert_eq!(
             C64::new(-546.3, -4002.57) + C64::new(5.5464, 8.21), 
             C64::new(-540.7536, -3994.36)
+        );
+    }
+
+    #[test]
+    /// Tests proper implementation of Sub for C64
+    fn subtracts() {        
+        assert_eq!(
+            C64::new(1, 2) - C64::new(5, 8), 
+            C64::new(-4, -6)
+        );
+
+        assert_eq!(
+            C64::new(5, -22) - C64::new(5, 8), 
+            C64::new(0, -30)
+        );
+        assert_eq!(
+            C64::new(-180, -42) - C64::new(-51, -82), 
+            C64::new(-129, 40)
+        );
+
+        assert_eq!(
+            C64::new(1.02, 2) - C64::new(5, 8.789), 
+            C64::new(-3.98, -6.789)
+        );
+
+        assert_eq!(
+            C64::new(-546.3, -4002.57) - C64::new(5.546, 8.21), 
+            C64::new(-551.846, -4010.78)
         );
     }
 }

@@ -69,7 +69,7 @@ fn decimal_places(num: f64) -> usize {
     split_str[1].len()
 }
 
-/// Multiplies two f64 values with *supreme exactitude*
+/// Adds two f64 values with *supreme exactitude*
 fn add_f64(a: f64, b: f64) -> f64 {
     let a_dec = decimal_places(a) as u32;
     let a_shifted = a * 10_u64.pow(a_dec) as f64;
@@ -80,6 +80,11 @@ fn add_f64(a: f64, b: f64) -> f64 {
         Ordering::Equal => (a_shifted + b_shifted) / 10_u64.pow(a_dec) as f64,
         Ordering::Greater => (a_shifted + b_shifted * 10_u64.pow(a_dec - b_dec) as f64) / 10_u64.pow(a_dec) as f64
     }
+}
+
+/// Subtracts two f64 values with *supreme exactitude*
+fn subtract_f64(a: f64, b: f64) -> f64 {
+    add_f64(a, -b)
 }
 
 /// Multiplies two f64 values with *supreme exactitude*
@@ -202,6 +207,21 @@ mod tests {
         assert_eq!(add_f64(2.02, 1.7), 3.72);
         assert_eq!(add_f64(137.2901, 0.0), 137.2901);
         assert_eq!(add_f64(0.0, 738.298), 738.298);
+        assert_eq!(add_f64(0.0, 0.0), 0.0);
+    }
+
+    #[test]
+    /// Tests add_f64
+    fn subtracts_f64() {
+        assert_eq!(subtract_f64(137.2901, 738.298), -601.0079);
+        assert_eq!(subtract_f64(5.05, 6.05), -1.0);
+        assert_eq!(subtract_f64(-5.05, 6.05), -11.1);
+        assert_eq!(subtract_f64(5.05, -6.05), 11.1);
+        assert_eq!(subtract_f64(-5.05, -6.05), 1.0);
+        assert_eq!(subtract_f64(2.02, 1.7), 0.32);
+        assert_eq!(subtract_f64(137.2901, 0.0), 137.2901);
+        assert_eq!(subtract_f64(0.0, 738.298), -738.298);
+        assert_eq!(subtract_f64(0.0, 0.0), 0.0);
     }
 
     #[test]

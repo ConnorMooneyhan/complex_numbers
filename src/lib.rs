@@ -69,13 +69,23 @@ fn decimal_places(num: f64) -> usize {
     split_str[1].len()
 }
 
+/// Multiplies two f64 values with *precision*
+fn multiply_f64(a: f64, b: f64) -> f64 {
+    let a_dec = decimal_places(a) as u32;
+    let a_shifted = a * 10_u64.pow(a_dec) as f64;
+    let b_dec = decimal_places(b) as u32;
+    let b_shifted = b * 10_u64.pow(b_dec) as f64;
+    let downshift = 10_u64.pow(a_dec + b_dec) as f64;
+    (a_shifted * b_shifted) / downshift
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
     
     #[test]
     /// Tests proper implementation of Add for C64
-    fn adds() {        
+    fn adds_C64() {        
         assert_eq!(
             C64::new(1, 2) + C64::new(5, 8), 
             C64::new(6, 10)
@@ -103,7 +113,7 @@ mod tests {
 
     #[test]
     /// Tests proper implementation of Sub for C64
-    fn subtracts() {        
+    fn subtracts_C64() {        
         assert_eq!(
             C64::new(1, 2) - C64::new(5, 8), 
             C64::new(-4, -6)
@@ -131,7 +141,7 @@ mod tests {
 
     #[test]
     /// Tests proper implementation of Sub for C64
-    fn multiplies() {        
+    fn multiplies_C64() {        
         assert_eq!(
             C64::new(1, 2) * C64::new(5, 8), 
             C64::new(-11, 18)
@@ -158,6 +168,7 @@ mod tests {
     }
 
     #[test]
+    /// Tests decimal_places
     fn calculates_decimal_places() {
         assert_eq!(decimal_places(2.93), 2);
         assert_eq!(decimal_places(2.123456789), 9);
@@ -165,5 +176,21 @@ mod tests {
         assert_eq!(decimal_places(0.93), 2);
         assert_eq!(decimal_places(2.0), 1);
         assert_eq!(decimal_places(0.0), 1);
+    }
+
+    #[test]
+    /// Tests multiply_f64
+    fn multiplies_f64() {
+        assert_eq!(multiply_f64(2.0, 5.0), 10.0);
+        assert_eq!(multiply_f64(2.56, 5.82), 14.8992);
+        assert_eq!(multiply_f64(2.2, 1.2), 2.64);
+        assert_eq!(multiply_f64(4.5, 0.0), 0.0);
+        assert_eq!(multiply_f64(0.0, 8.2), 0.0);
+        assert_eq!(multiply_f64(0.0, -8.2), 0.0);
+        assert_eq!(multiply_f64(-0.0, 8.2), 0.0);
+        assert_eq!(multiply_f64(-3.0, 5.2), -15.6);
+        assert_eq!(multiply_f64(3.0, -5.2), -15.6);
+        assert_eq!(multiply_f64(-3.0, -5.2), 15.6);
+        assert_eq!(multiply_f64(3.0, 5.2), 15.6);
     }
 }

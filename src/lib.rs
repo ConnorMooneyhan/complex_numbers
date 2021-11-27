@@ -164,6 +164,6 @@ mod tests {
         assert_eq!(decimal_places(28489.502), 3);
         assert_eq!(decimal_places(0.93), 2);
         assert_eq!(decimal_places(2.0), 1);
-        assert_eq!(decimal_places(0.9), 1);
+        assert_eq!(decimal_places(0.0), 1);
     }
 }

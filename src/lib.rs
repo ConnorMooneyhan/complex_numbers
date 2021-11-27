@@ -51,18 +51,16 @@ impl ops::Mul for C64 {
     type Output = Self;
 
     fn mul(self, other: Self) -> Self::Output {
-
-                
         Self {
-            re: multiply_f64(self.re, other.re) - multiply_f64(self.im, other.im),
-            im: multiply_f64(self.re, other.im) + multiply_f64(self.im, other.re)
+            re: subtract_f64(multiply_f64(self.re, other.re), multiply_f64(self.im, other.im)),
+            im: add_f64(multiply_f64(self.re, other.im), multiply_f64(self.im, other.re))
         }
     }
 }
 
 /// Takes an f64 as input and returns its number of decimal places
 fn decimal_places(num: f64) -> usize {
-    if num.fract() == 0.0 { return 1 }
+    if num.fract() == 0.0 { return 0 }
     
     let num_str = num.to_string();
     let split_str: Vec<&str> = num_str.split('.').collect();
@@ -94,7 +92,16 @@ fn multiply_f64(a: f64, b: f64) -> f64 {
     let b_dec = decimal_places(b) as u32;
     let b_shifted = b * 10_u64.pow(b_dec) as f64;
     let downshift = 10_u64.pow(a_dec + b_dec) as f64;
-    (a_shifted * b_shifted) / downshift
+    println!(
+        "a: {}\nb: {}\na_dec: {}\nb_dec: {}\na_shifted: {}\nb_shifted: {}\n",
+        a,
+        b,
+        a_dec,
+        b_dec,
+        a_shifted,
+        b_shifted
+    );
+    (a_shifted.trunc() * b_shifted.trunc()) / downshift
 }
 
 #[cfg(test)]
@@ -103,7 +110,7 @@ mod tests {
     
     #[test]
     /// Tests proper implementation of Add for C64
-    fn adds_C64() {        
+    fn adds_c64() {        
         assert_eq!(
             C64::new(1, 2) + C64::new(5, 8), 
             C64::new(6, 10)
@@ -131,7 +138,7 @@ mod tests {
 
     #[test]
     /// Tests proper implementation of Sub for C64
-    fn subtracts_C64() {        
+    fn subtracts_c64() {        
         assert_eq!(
             C64::new(1, 2) - C64::new(5, 8), 
             C64::new(-4, -6)
@@ -159,7 +166,7 @@ mod tests {
 
     #[test]
     /// Tests proper implementation of Sub for C64
-    fn multiplies_C64() {        
+    fn multiplies_c64() {        
         assert_eq!(
             C64::new(1, 2) * C64::new(5, 8), 
             C64::new(-11, 18)
@@ -181,7 +188,7 @@ mod tests {
 
         assert_eq!(
             C64::new(-546.3, -4002.57) * C64::new(5.546, 8.21), 
-            C64::new(35890.8795, -17713.13022)
+            C64::new(29831.3199, -26683.37622)
         );
     }
 
@@ -192,8 +199,12 @@ mod tests {
         assert_eq!(decimal_places(2.123456789), 9);
         assert_eq!(decimal_places(28489.502), 3);
         assert_eq!(decimal_places(0.93), 2);
-        assert_eq!(decimal_places(2.0), 1);
-        assert_eq!(decimal_places(0.0), 1);
+        assert_eq!(decimal_places(2.0), 0);
+        assert_eq!(decimal_places(0.0), 0);
+        assert_eq!(decimal_places(-546.3), 1);
+        assert_eq!(decimal_places(5.546), 3);
+        assert_eq!(decimal_places(-4002.57), 2);
+        assert_eq!(decimal_places(8.21), 2);
     }
 
     #[test]
@@ -222,6 +233,7 @@ mod tests {
         assert_eq!(subtract_f64(137.2901, 0.0), 137.2901);
         assert_eq!(subtract_f64(0.0, 738.298), -738.298);
         assert_eq!(subtract_f64(0.0, 0.0), 0.0);
+        assert_eq!(subtract_f64(-3029.7798, -32861.0997), 29831.3199);
     }
 
     #[test]
@@ -238,6 +250,8 @@ mod tests {
         assert_eq!(multiply_f64(3.0, -5.2), -15.6);
         assert_eq!(multiply_f64(-3.0, -5.2), 15.6);
         assert_eq!(multiply_f64(3.0, 5.2), 15.6);
+        assert_eq!(multiply_f64(-546.3, 5.546), -3029.7798);
+        assert_eq!(multiply_f64(-4002.57, 8.21), -32861.0997);
     }
 
 }

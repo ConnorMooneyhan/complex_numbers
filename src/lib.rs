@@ -54,8 +54,8 @@ impl ops::Mul for C64 {
 
                 
         Self {
-            re: self.re * other.re - self.im * other.im,
-            im: self.re * other.im + self.im * other.re
+            re: multiply_f64(self.re, other.re) - multiply_f64(self.im, other.im),
+            im: multiply_f64(self.re, other.im) + multiply_f64(self.im, other.re)
         }
     }
 }
@@ -69,7 +69,20 @@ fn decimal_places(num: f64) -> usize {
     split_str[1].len()
 }
 
-/// Multiplies two f64 values with *precision*
+/// Multiplies two f64 values with *supreme exactitude*
+fn add_f64(a: f64, b: f64) -> f64 {
+    let a_dec = decimal_places(a) as u32;
+    let a_shifted = a * 10_u64.pow(a_dec) as f64;
+    let b_dec = decimal_places(b) as u32;
+    let b_shifted = b * 10_u64.pow(b_dec) as f64;
+    match a_dec.cmp(&b_dec) {
+        Ordering::Less => (a_shifted * 10_u64.pow(b_dec - a_dec) as f64 + b_shifted) / 10_u64.pow(b_dec) as f64,
+        Ordering::Equal => (a_shifted + b_shifted) / 10_u64.pow(a_dec) as f64,
+        Ordering::Greater => (a_shifted + b_shifted * 10_u64.pow(a_dec - b_dec) as f64) / 10_u64.pow(a_dec) as f64
+    }
+}
+
+/// Multiplies two f64 values with *supreme exactitude*
 fn multiply_f64(a: f64, b: f64) -> f64 {
     let a_dec = decimal_places(a) as u32;
     let a_shifted = a * 10_u64.pow(a_dec) as f64;
@@ -179,6 +192,19 @@ mod tests {
     }
 
     #[test]
+    /// Tests add_f64
+    fn adds_f64() {
+        assert_eq!(add_f64(137.2901, 738.298), 875.5881);
+        assert_eq!(add_f64(5.05, 6.05), 11.1);
+        assert_eq!(add_f64(-5.05, 6.05), 1.0);
+        assert_eq!(add_f64(5.05, -6.05), -1.0);
+        assert_eq!(add_f64(-5.05, -6.05), -11.1);
+        assert_eq!(add_f64(2.02, 1.7), 3.72);
+        assert_eq!(add_f64(137.2901, 0.0), 137.2901);
+        assert_eq!(add_f64(0.0, 738.298), 738.298);
+    }
+
+    #[test]
     /// Tests multiply_f64
     fn multiplies_f64() {
         assert_eq!(multiply_f64(2.0, 5.0), 10.0);
@@ -193,4 +219,5 @@ mod tests {
         assert_eq!(multiply_f64(-3.0, -5.2), 15.6);
         assert_eq!(multiply_f64(3.0, 5.2), 15.6);
     }
+
 }

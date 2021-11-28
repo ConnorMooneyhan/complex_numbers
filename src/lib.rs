@@ -58,6 +58,21 @@ impl ops::Mul for C64 {
     }
 }
 
+impl ops::Div for C64 {
+    type Output = Self;
+
+    fn div(self, other: Self) -> Self::Output {
+        let numerator = self * Self::new(other.re, -other.im);
+        let denominator = other.re.powi(2) + other.im.powi(2);
+        
+        // Uses precision of five decimal places
+        Self {
+            re: (numerator.re / denominator * 100000.0).round() / 100000.0,
+            im: (numerator.im / denominator * 100000.0).round() / 100000.0
+        }
+    }
+}
+
 /// Takes an f64 as input and returns its number of decimal places
 fn decimal_places(num: f64) -> usize {
     if num.fract() == 0.0 { return 0 }
@@ -92,15 +107,6 @@ fn multiply_f64(a: f64, b: f64) -> f64 {
     let b_dec = decimal_places(b) as u32;
     let b_shifted = b * 10_u64.pow(b_dec) as f64;
     let downshift = 10_u64.pow(a_dec + b_dec) as f64;
-    println!(
-        "a: {}\nb: {}\na_dec: {}\nb_dec: {}\na_shifted: {}\nb_shifted: {}\n",
-        a,
-        b,
-        a_dec,
-        b_dec,
-        a_shifted,
-        b_shifted
-    );
     (a_shifted.trunc() * b_shifted.trunc()) / downshift
 }
 
@@ -167,31 +173,23 @@ mod tests {
     #[test]
     /// Tests proper implementation of Sub for C64
     fn multiplies_c64() {        
-        assert_eq!(
-            C64::new(1, 2) * C64::new(5, 8), 
-            C64::new(-11, 18)
-        );
-
-        assert_eq!(
-            C64::new(5, -22) * C64::new(5, 8), 
-            C64::new(201, -70)
-        );
-        assert_eq!(
-            C64::new(-180, -42) * C64::new(-51, -82), 
-            C64::new(5736, 16902)
-        );
-
-        assert_eq!(
-            C64::new(1.3, 2) * C64::new(-5, 8.7), 
-            C64::new(-23.9, 1.31)
-        );
-
-        assert_eq!(
-            C64::new(-546.3, -4002.57) * C64::new(5.546, 8.21), 
-            C64::new(29831.3199, -26683.37622)
-        );
+        assert_eq!(C64::new(1, 2) * C64::new(5, 8), C64::new(-11, 18));
+        assert_eq!(C64::new(5, -22) * C64::new(5, 8), C64::new(201, -70));
+        assert_eq!(C64::new(-180, -42) * C64::new(-51, -82), C64::new(5736, 16902));
+        assert_eq!(C64::new(1.3, 2) * C64::new(-5, 8.7), C64::new(-23.9, 1.31));
+        assert_eq!(C64::new(-546.3, -4002.57) * C64::new(5.546, 8.21), C64::new(29831.3199, -26683.37622));
     }
 
+    #[test]
+    /// Tests proper implementation of Div for C64 to five decimal places
+    fn divides_c64() {
+        assert_eq!(C64::new(1, 2) / C64::new(5, 8), C64::new(0.23596, 0.02247));
+        assert_eq!(C64::new(5, -22) / C64::new(5, 8), C64::new(-1.69663, -1.68539));
+        assert_eq!(C64::new(-180, -42) / C64::new(-51, -82), C64::new(1.35378, -1.35314));
+        assert_eq!(C64::new(1.3, 2) / C64::new(-5, 8.7), C64::new(0.10825, -0.21164));
+        assert_eq!(C64::new(-546.3, -4002.57) / C64::new(5.546, 8.21), C64::new(-365.62825, -180.44754));
+    }
+    
     #[test]
     /// Tests decimal_places
     fn calculates_decimal_places() {
